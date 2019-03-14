@@ -51,7 +51,7 @@ struct Maquina{
 //Selecciona el tiempo asociado a esa descarga.
 unsigned long SelTiempo(struct Maquina& m){
 	unsigned long tms;
-	R = random(m.p5, m.f17-1);
+	int R = random(m.p5, m.f17-1);
 	if(R<=m.p5 && R>m.f5){
 	    tms = 5000;
 	    m.n5 += -1;
@@ -122,6 +122,7 @@ void loop_Maquina(struct Maquina& m, const unsigned long currms){
 	if(currms - m.lastms  >= m.perms){
 		m.lastms += m.perms;
 		m.estadoB = m.estado;
+    int R;
 
 		Reajuste(m);	//Reajustamos las variables de tiempo.
 		unsigned long tms = SelTiempo(m);	//Selecciona el tiempo.
@@ -129,7 +130,7 @@ void loop_Maquina(struct Maquina& m, const unsigned long currms){
 		switch (m.estado) {
 		    case PREGUNTA:		      
 		      if(Serial.available()){
-		          char C = Serial.Read();	//Lee caracter del puerto serial.
+		          char C = Serial.read();	//Lee caracter del puerto serial.
 		          if(C == 'D'){
 		              m.estado = DIRECTO;
 		          } else {m.estado = INDIRECTO;}
@@ -143,20 +144,20 @@ void loop_Maquina(struct Maquina& m, const unsigned long currms){
 		      break;
 
 		    case DIRECTO:
-		      int R = random(0, 1);	//Para que exista un 50% de probabilidad de descarga (0,1).
+		      R = random(0, 1);	//Para que exista un 50% de probabilidad de descarga (0,1).
 		      if(R){
 		          Descarga();
 		      }
 		      break;
 
 		    case INDIRECTO:		      
-		      int R = random(1, 100);	//Posibilidad de descarga.
+		      R = random(1, 100);	//Posibilidad de descarga.
 		      if(R < 15 && currms - m.cambioms >= tms){
 		          Descarga();
 		      }
 		      //Pasa al siguiente estado cuando pasa el tiempo de espera, independientemente a si se realiza la descarga o no.
 		      if(currms - m.cambioms >= TIEMPOESPERA){
-		          m.estado = PREGUNTA
+		          m.estado = PREGUNTA;
 		      }
 		      break;
 		}
